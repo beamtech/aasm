@@ -169,6 +169,11 @@ module AASM
             if options[:persist] && success
               event.fire_callbacks(:after_commit, self, *args)
               event.fire_global_callbacks(:after_all_commits, self, *args)
+
+              new_state_name = aasm(state_machine_name).current_state
+              new_state = aasm(state_machine_name).state_object_for_name(new_state_name)
+              new_state.fire_callbacks(:after_commit, self,
+                *process_args(event, aasm(state_machine_name).current_state, *args))
             end
           ensure
             if options[:persist]
